@@ -111,7 +111,10 @@ router.post('/', [
   try{
   await User.create(user);
   } catch (error) {
-    return res.status(400).json({ message: error.errors.find( err => err.message != null).message });
+    if (error.name === 'SequelizeValidationError') {
+      error = error.errors.map(err => err.message);
+    }
+    return res.status(400).json({ message: error});
   }
 
   // Set the status to 201 Created and end the response.

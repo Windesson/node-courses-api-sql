@@ -2,6 +2,6 @@
   "development": {
     "dialect": "sqlite",
     "storage": "fsjstd-restapi.db",
-    "logging": false 
+    "logging": true 
   }
 }

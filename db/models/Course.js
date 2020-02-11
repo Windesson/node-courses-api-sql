@@ -29,8 +29,10 @@ module.exports = (sequelize) => {
     Course.belongsTo(models.User, {
       foreignKey: {
         fieldName: 'userId',
-        allowNull: false,
+        allowNull: true,
       },
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
     });
   };
 
