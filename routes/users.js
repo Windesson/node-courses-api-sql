@@ -1,8 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
-const tools = require("./includes/users-utilities")
-const {authenticateUser, validationResult, checkUserValidationChain, handleSequelizaValidation, models, hashPassword} = tools;
+const {
+  authenticateUser, 
+  validationResult, 
+  checkUserValidationChain, 
+  handleSequelizaValidation, 
+  models, 
+  hashPassword} = require("./includes/users-utilities");
+
 const User = models.User;
 
 // Route that returns the current authenticated user.
@@ -30,11 +36,13 @@ router.post('/', checkUserValidationChain, async (req, res) => {
   const user = req.body;
   user.password = hashPassword(user.password);
 
-  handleSequelizaValidation( async () => {
+  const sequeliErrors = await handleSequelizaValidation( async () => {
     await User.create(user);
   });
 
-  return res.status(201).end();
+  if(sequeliErrors) res.status(400).json({ message: sequeliErrors});
+
+  res.status(201).end();
 });
 
 

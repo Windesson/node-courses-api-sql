@@ -1,9 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
-const tools = require('./includes/courses-utilities');
-const {filteredUserAttributes, handleSequelizaValidation, validationResult, checkValidationChain} = tools
-const {Course} = tools.models;
+const { 
+   filteredUserAttributes, 
+   handleSequelizaValidation, 
+   validationResult, 
+   checkCourseValidationChain,
+   authenticateUser,
+   models
+  } = require('./includes/courses-utilities')
+
+const {Course} = models;
 
 // Returns a list of courses 
 router.get('/', async (req, res) => {    
@@ -19,7 +26,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Route that creates a new course.
-router.post('/', checkValidationChain, async (req, res) => {
+router.post('/', [authenticateUser, checkCourseValidationChain], async (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -27,30 +34,51 @@ router.post('/', checkValidationChain, async (req, res) => {
     return res.status(400).json({ errors: errorMessages });
   }
 
-  handleSequelizaValidation( async () => {
+  const sequeliErrors = await handleSequelizaValidation( async () => {
     await Course.create(req.body);
-  })
+  });
+
+  if(sequeliErrors) 
+      res.status(400).json({ message: sequeliErrors});
   
   return res.status(201).end();
 });
 
 // Updates a course and returns no content
-router.put("/:id", async (req, res) => {  
+router.put("/:id", [authenticateUser, checkCourseValidationChain],async (req, res) => {  
   handleSequelizaValidation( async () => {
     course = await Course.findByPk(req.params.id);
     if(course){
-      await course.update(req.body);
+
+      const sequeliErrors = await handleSequelizaValidation( async () => {
+        await course.update(req.body);
+      });
+    
+      if(sequeliErrors) 
+         res.status(400).json({ message: sequeliErrors});
+      
+      res.status(204).end();
+
     } else {
       next(); 
     }
   })
 });
 
-router.delete("/:id", async (req, res) => {  
+//Deletes a course and returns no content
+router.delete("/:id", authenticateUser, async (req, res) => {  
   handleSequelizaValidation( async () => {
     course = await Course.findByPk(req.params.id);
     if(course){
-      await course.destroy();
+
+      const sequeliErrors = await handleSequelizaValidation( async () => {
+         await course.destroy();
+      });
+    
+      if(sequeliErrors) 
+         res.status(400).json({ message: sequeliErrors});
+
+      return res.status(204).end();
     } else {
       next(); 
     }
