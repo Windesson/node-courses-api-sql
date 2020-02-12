@@ -22,7 +22,6 @@ router.get('/:id', async (req, res) => {
 router.post('/', checkValidationChain, async (req, res) => {
 
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     const errorMessages = errors.array().map(error => error.msg);
     return res.status(400).json({ errors: errorMessages });
@@ -31,9 +30,8 @@ router.post('/', checkValidationChain, async (req, res) => {
   handleSequelizaValidation( async () => {
     await Course.create(req.body);
   })
-
+  
   return res.status(201).end();
-
 });
 
 // Updates a course and returns no content
