@@ -1,7 +1,6 @@
 const { 
     authenticateUser,
     models,
-    handleSequelizaValidation,
 } = require('./common');
 
 const { check, validationResult } = require('express-validator');
@@ -21,7 +20,6 @@ const filteredUserAttributes = {
 
 module.exports = {
   filteredUserAttributes,
-  handleSequelizaValidation,
   checkCourseValidationChain,
   authenticateUser,
   validationResult,

@@ -20,15 +20,9 @@ console.log('Testing the connection to the database...');
     await sequelize.sync();
 
   } catch (error) {
-     if (error.name === 'SequelizeValidationError') {
-       const errors = error.errors.map(err => err.message);
-       console.error('Validation errors: ', errors);
-     } else {
        throw error;
-     }
  }
 })();
-
 
 // Add routes.
 router.use('/users', users);

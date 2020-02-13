@@ -57,25 +57,8 @@ const authenticateUser = async (req, res, next) => {
     }
 };
 
-const handleSequelizaValidation = async (callback) =>{
-    let errors = "";
-    try {
-        await callback();      
-    } catch (error) {
-
-      if (error.name === 'SequelizeValidationError' ||  error.name === 'SequelizeUniqueConstraintError') {
-        errors = error.errors.map(err => err.message);
-      } 
-
-    } finally {
-        return errors;
-    }
-};
-
-
 module.exports = { 
     authenticateUser,
-    handleSequelizaValidation,
     models,
     bcryptjs
 }

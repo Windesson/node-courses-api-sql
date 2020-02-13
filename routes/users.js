@@ -4,12 +4,18 @@ const router = express.Router();
 const {
   authenticateUser, 
   validationResult, 
-  checkUserValidationChain, 
-  handleSequelizaValidation, 
-  models, 
+  checkUserValidationChain,  
+  models,
   hashPassword} = require("./includes/users-utilities");
 
 const User = models.User;
+
+const handleErrorMessage = (error) => {
+  if (error.name === 'SequelizeValidationError' || error.name === "SequelizeUniqueConstraintError") {
+   return error.errors.map(err => err.message);
+ } 
+   return { "error": error.name, "message": error.message};
+}
 
 // Route that returns the current authenticated user.
 router.get('/', authenticateUser, (req, res) => {
@@ -30,19 +36,19 @@ router.post('/', checkUserValidationChain, async (req, res) => {
 
   if (!errors.isEmpty()) {
     const errorMessages = errors.array().map(error => error.msg);
-    return res.status(400).json({ errors: errorMessages });
+    res.status(400).json({ errors: errorMessages });
   }
 
-  const user = req.body;
+  let user = req.body;
   user.password = hashPassword(user.password);
-
-  const sequeliErrors = await handleSequelizaValidation( async () => {
-    await User.create(user);
-  });
-
-  if(sequeliErrors) res.status(400).json({ message: sequeliErrors});
-
-  res.status(201).end();
+  console.log(user);
+  try {
+    user = await User.create(user);
+    res.location(`${req.originalUrl}/${user.id}`).status(201).end();
+  } catch (error) {
+    const message = handleErrorMessage(error);
+    res.status(400).json({ errors: message });
+  }
 });
 
 
