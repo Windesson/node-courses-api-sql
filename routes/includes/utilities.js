@@ -1,7 +1,9 @@
 const models = require('../../db').models;
-const {User, Course} = models;
+const {User} = models;
 const bcryptjs = require('bcryptjs');
 const auth = require('basic-auth');
+
+const { check } = require('express-validator');
 
 const authenticateUser = async (req, res, next) => {
     let message = null;
@@ -67,9 +69,44 @@ const handleErrorMessage = (error) => {
      return { "error": error.name, "message": error.message};
 }
 
+const checkUserValidationChain = [
+    check('firstName').exists({ checkNull: true, checkFalsy: true })
+      .withMessage('Please provide a value for "firstName"'),
+    check('lastName').exists({ checkNull: true, checkFalsy: true })
+      .withMessage('Please provide a value for "lastName"'),
+    check('emailAddress').exists({ checkNull: true, checkFalsy: true })
+      .withMessage('Please provide a value for "emailAddress"'),    
+    check('password').exists({ checkNull: true, checkFalsy: true })
+      .withMessage('Please provide a value for "password"'),
+];
+
+const hashPassword = (password) => {
+    try {
+       return bcryptjs.hashSync(password);
+    } catch (error) {
+      return null;
+    }  
+  }
+
+  const checkCourseValidationChain = [
+    check('title').exists({ checkNull: true, checkFalsy: true }).
+    withMessage('Please provide a value for "title"'),
+  
+    check('description').exists({ checkNull: true, checkFalsy: true })
+    .withMessage('Please provide a value for "description"')
+ ];
+  
+const filteredUserAttributes = {
+    include: [ { model: User,  attributes: ["id","firstName","lastName"] } ]
+};
+
 module.exports = { 
     authenticateUser,
     models,
     bcryptjs,
-    handleErrorMessage
+    handleErrorMessage,
+    filteredUserAttributes,
+    checkCourseValidationChain,
+    checkUserValidationChain,
+    hashPassword
 }
