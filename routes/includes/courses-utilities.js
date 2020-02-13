@@ -1,6 +1,6 @@
 const { 
     authenticateUser,
-    models,
+    models, handleErrorMessage,
 } = require('./common');
 
 const { check, validationResult } = require('express-validator');
@@ -23,5 +23,6 @@ module.exports = {
   checkCourseValidationChain,
   authenticateUser,
   validationResult,
+  handleErrorMessage,
   models
 }

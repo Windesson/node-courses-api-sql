@@ -15,12 +15,15 @@ const authenticateUser = async (req, res, next) => {
       // by their username (i.e. the user's "key"
       // from the Authorization header).
       let user = null;
-      await User.findOne({
-        where: {
-          emailAddress: credentials.name,
-        },
-      }).then( result => user = result.dataValues);
-  
+      try {
+        user = await User.findOne({
+            where: {
+              emailAddress: credentials.name,
+            },
+          })   
+      } catch {
+
+      }
   
       // If a user was successfully retrieved from the data store...
       if (user) {
@@ -49,7 +52,7 @@ const authenticateUser = async (req, res, next) => {
     if (message) {
       console.warn(message);
       // Return a response with a 401 Unauthorized HTTP status code.
-      res.status(401).json({ message: 'Access Denied' });
+      return res.status(401).json({ message: 'Access Denied' });
     } else {
       // Or if user authentication succeeded...
       // Call the next() method.
@@ -57,8 +60,16 @@ const authenticateUser = async (req, res, next) => {
     }
 };
 
+const handleErrorMessage = (error) => {
+    if (error.name === 'SequelizeValidationError' || error.name === "SequelizeUniqueConstraintError") {
+     return error.errors.map(err => err.message);
+   } 
+     return { "error": error.name, "message": error.message};
+}
+
 module.exports = { 
     authenticateUser,
     models,
-    bcryptjs
+    bcryptjs,
+    handleErrorMessage
 }

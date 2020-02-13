@@ -1,6 +1,6 @@
 const { 
     authenticateUser,
-    models,
+    models, handleErrorMessage,
     bcryptjs} = require('./common');
 
 const { check, validationResult } = require('express-validator');
@@ -17,13 +17,17 @@ const checkUserValidationChain = [
 ];
 
 const hashPassword = (password) => {
+  try {
      return bcryptjs.hashSync(password);
+  } catch (error) {
+    return null;
+  }  
 }
 
 module.exports = { 
     authenticateUser,
     checkUserValidationChain,
     validationResult,
-    models,
+    models, handleErrorMessage,
     hashPassword
 }
