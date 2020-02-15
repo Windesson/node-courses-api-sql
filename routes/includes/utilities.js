@@ -1,10 +1,14 @@
-const models = require('../../db').models;
-const {User} = models;
 const bcryptjs = require('bcryptjs');
 const auth = require('basic-auth');
 
 const { check } = require('express-validator');
+const { User }  = require('../../db').models;
 
+/**
+ * This function credited to
+ * https://teamtreehouse.com/library/rest-api-authentication-with-express
+ * Some modification were done.
+ *  */ 
 const authenticateUser = async (req, res, next) => {
     let message = null;
   
@@ -16,15 +20,16 @@ const authenticateUser = async (req, res, next) => {
       // Attempt to retrieve the user from the data store
       // by their username (i.e. the user's "key"
       // from the Authorization header).
-      let user = null;
+      let user;
       try {
         user = await User.findOne({
             where: {
               emailAddress: credentials.name,
             },
           })   
-      } catch {
-
+      } catch (error) {
+        message = handleErrorMessage(error); 
+        return res.status(401).json({ message: message });
       }
   
       // If a user was successfully retrieved from the data store...
@@ -96,17 +101,23 @@ const hashPassword = (password) => {
     .withMessage('Please provide a value for "description"')
  ];
   
+
 const filteredUserAttributes = {
-    include: [ { model: User,  attributes: ["id","firstName","lastName"] } ]
+    attributes : ["id","title","description", "userId"],
+    include: [  
+      { 
+        model: User,  attributes: ["id","firstName","lastName", "emailAddress"]
+      }
+    ] 
 };
 
+
+
 module.exports = { 
-    authenticateUser,
-    models,
-    bcryptjs,
-    handleErrorMessage,
-    filteredUserAttributes,
-    checkCourseValidationChain,
-    checkUserValidationChain,
-    hashPassword
+  authenticateUser,
+  checkUserValidationChain,
+  handleErrorMessage,
+  hashPassword,
+  filteredUserAttributes,
+  checkCourseValidationChain,
 }

@@ -23,9 +23,13 @@ module.exports = (sequelize) => {
       },
     emailAddress: {
         type: Sequelize.STRING,
+        unique: true,
         validate: {
           notEmpty: {
-            msg: '"emailAddress" is required'
+            msg: '"emailAddress" is required',
+          },
+          isEmail: {
+            msg: 'invalid emailAddress. expected format (foo@bar.com)',
           }
         },
     },

@@ -18,16 +18,18 @@ const {
 (async () => {
   try {
     // Test the connection to the database
-    console.log('Connection to the database successful!');
+    console.log('Testing the connection to the database..');
     await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
 
     // Sync the models
     console.log('Synchronizing the models with the database...');
     await sequelize.sync();
 
   } catch (error) {
-       throw error;
- }
+    console.error('Unable to connect to the database:', error);
+    throw error;
+  }
 })();
 
 // Route that returns the current authenticated user.
@@ -119,6 +121,8 @@ router.put("/courses/:id", [authenticateUser, checkCourseValidationChain],async 
   try {
     let course = await Course.findByPk(req.params.id);
     if(course){
+      const user = req.currentUser;
+      if(user.id !== course.userId) return res.status(403).json({ errors: "User doesn't own the requested course" });
       await course.update(req.body);
       return res.status(204).end();
     } else {
@@ -136,6 +140,8 @@ router.delete("/courses/:id", authenticateUser, async (req, res, next) => {
     try {
       const course = await Course.findByPk(req.params.id);
       if(course){      
+        const user = req.currentUser;
+        if(user.id !== course.userId) return res.status(403).json({ errors: "User doesn't own the requested course" });
         await course.destroy();      
         return res.status(204).end();      
       } else {
