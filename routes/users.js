@@ -15,7 +15,7 @@ const {
 
 
 // Route that returns the current authenticated user.
-router.get('/users', authenticateUser, (req, res) => {
+router.get('/', authenticateUser, (req, res) => {
 
   const user = req.currentUser;
   res.json({
@@ -27,7 +27,7 @@ router.get('/users', authenticateUser, (req, res) => {
 });
 
 // Route that creates a new user.
-router.post('/users', checkUserValidationChain, async (req, res) => {
+router.post('/', checkUserValidationChain, async (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {

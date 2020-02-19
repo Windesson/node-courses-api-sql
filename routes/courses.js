@@ -15,7 +15,7 @@ const {
 
 
 // Returns a list of courses 
-router.get('/courses', async (req, res) => {    
+router.get('/', async (req, res) => {    
   try {
     const courses = await Course.findAll(filteredUserAttributes)
     return res.status(200).json(courses);    
@@ -27,7 +27,7 @@ router.get('/courses', async (req, res) => {
 });
 
 // Returns a course by id
-router.get('/courses/:id', async (req, res, next) => { 
+router.get('/:id', async (req, res, next) => { 
   try {
     const courses = await Course.findByPk(req.params.id, filteredUserAttributes)
     if(courses)
@@ -41,7 +41,7 @@ router.get('/courses/:id', async (req, res, next) => {
 });
 
 // Route that creates a new course.
-router.post('/courses', [authenticateUser, checkCourseValidationChain], async (req, res) => {
+router.post('/', [authenticateUser, checkCourseValidationChain], async (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -59,7 +59,7 @@ router.post('/courses', [authenticateUser, checkCourseValidationChain], async (r
 });
 
 // Updates a course and returns no content
-router.put("/courses/:id", [authenticateUser, checkCourseValidationChain],async (req, res, next) => {  
+router.put("/:id", [authenticateUser, checkCourseValidationChain],async (req, res, next) => {  
   
   const errors = validationResult(req);
 
@@ -85,7 +85,7 @@ router.put("/courses/:id", [authenticateUser, checkCourseValidationChain],async 
 });
 
 //Deletes a course and returns no content
-router.delete("/courses/:id", authenticateUser, async (req, res, next) => {  
+router.delete("/:id", authenticateUser, async (req, res, next) => {  
 
     try {
       const course = await Course.findByPk(req.params.id);
